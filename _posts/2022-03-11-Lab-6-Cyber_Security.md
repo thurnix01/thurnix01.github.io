@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lab 06 - Encryption - Crypto 101
+title: 2022-02-23-Lab 06 - Encryption - Crypto 101 - Cyber_Security
 ---
 Week 6 Lab
 Encryption - Crypto 101
