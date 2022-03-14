@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lab 07 - Keybase.io
+title: 2022-03-12-Lab 07 - Keybase.io - Cyber_Security
 ---
 Week 7 Lab
 Keybase.io app installation, setup and file sharing:
