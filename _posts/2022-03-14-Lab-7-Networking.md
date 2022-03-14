@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lab 06 - Fabrication of Cables!
+title: 2022-03-14-Lab 06 - Fabrication of Cables! - Networking
 ---
 Week 6 Lab
 
