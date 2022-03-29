@@ -8,12 +8,13 @@ Startup
 <img width="468" alt="image" src="https://user-images.githubusercontent.com/98490306/160695744-50903ecb-54a1-4de5-8d7b-90f5f4dcfb24.png">
 
 Launched Firefox and directed it to go to the Spice Hut website IP Address:
+<img width="468" alt="image" src="https://user-images.githubusercontent.com/98490306/160696859-99cda630-65fc-42da-842f-26325a7c0b19.png">
 
-<img width="468" alt="image" src="https://user-images.githubusercontent.com/98490306/160695798-4da62e96-6573-4103-83a4-d79a69090bb9.png">
 
-Then I tried to use 10.10.213.12/files/ to access the FTP 
+Then I tried to use 10.10.175.194/files/ to access the FTP 
 
-<img width="343" alt="image" src="https://user-images.githubusercontent.com/98490306/160695878-8db58ba4-e503-47f2-a302-6aa97854adde.png">
+<img width="468" alt="image" src="https://user-images.githubusercontent.com/98490306/160696937-03fec0ed-d92d-4be9-a9c1-a5d50e420f49.png">
+
 
 
 I then tried to login through terminal to see if I find some more file located on the 10.10.175.194 server…
