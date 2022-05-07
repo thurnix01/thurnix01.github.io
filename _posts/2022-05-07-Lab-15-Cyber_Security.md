@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  2022-005-07_Lab 15 - Investigating Windows - Cyber_Security
+title:  2022-05-07_Lab 15 - Investigating Windows - Cyber_Security
 ---
 Week 15 Lab
 
