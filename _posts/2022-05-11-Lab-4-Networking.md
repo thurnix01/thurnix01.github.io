@@ -8,7 +8,7 @@ Week 4 Lab
  
 <img width="468" alt="image" src="https://user-images.githubusercontent.com/98490306/167994226-6f270548-bab9-4452-8260-d87139f396cc.png">
 
-After watching the video, I was able to aner the questions that followed:
+After watching the video, I was able to answer the questions that followed:
 
 Task 1:
 
