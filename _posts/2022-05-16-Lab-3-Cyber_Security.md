@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  2022-05-16_Lab 03 - Common Attacks - Cyber_Security
+title:  2022-05-16_Lab 3 - Common Attacks - Cyber_Security
 ---
 Week 3 Lab
 
