@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Countdown Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f4f5; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b70;
+    --line: #dcdce0; --accent: #c8102e; --accent-text: #ffffff; --code: #f7f7f8;
+    --ok: #1a7f37; --err: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161618; --card: #222225; --text: #f1f1f3; --muted: #a0a0a8;
+      --line: #3a3a3f; --code: #1a1a1d; --ok: #4ac26b; --err: #ff7b72; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Roboto, system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  label { display: block; font-weight: 500; font-size: 13px; margin: 12px 0 4px; }
+  label:first-child { margin-top: 0; }
+  input, select, textarea, button { font: inherit; color: inherit; }
+  input[type=text], input[type=date], input[type=time], input[type=number], input[type=password], select {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--card);
+  }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; min-width: 0; }
+  .color { display: flex; gap: 6px; }
+  .color input[type=color] { width: 42px; height: 38px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); flex: none; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  button { padding: 9px 16px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 500; }
+  button:disabled { opacity: .5; cursor: default; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+  .preview { border-radius: 6px; padding: 16px; text-align: center; background: #ffffff; border: 1px solid var(--line); min-height: 98px; }
+  .preview img { max-width: 100%; height: auto; }
+  textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--code); font: 12px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+  .snippet { margin-top: 14px; }
+  .snippet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .snippet-head span { font-weight: 500; font-size: 13px; }
+  .snippet-head button { padding: 4px 10px; font-size: 13px; }
+  .status { font-size: 13px; }
+  .status.ok { color: var(--ok); } .status.err { color: var(--err); }
+  .badge { display: inline-block; font: 12px ui-monospace, Menlo, monospace; background: var(--code); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; }
+  table.list { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.list td, table.list th { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  table.list th { color: var(--muted); font-weight: 500; }
+  table.list tr.click { cursor: pointer; }
+  table.list tr.click:hover td { background: var(--code); }
+  details summary { cursor: pointer; font-weight: 500; }
+  .full { grid-column: 1 / -1; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Countdown timer</h1>
+  <p class="sub">Builds a live countdown GIF for emails and web pages. The timer is redrawn every time the email is opened.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2 id="formTitle">New timer</h2>
+      <label for="name">Name <span class="hint">(for you only, e.g. "BF26 #5 doorbuster")</span></label>
+      <input type="text" id="name" maxlength="80">
+
+      <div class="row">
+        <div><label for="date">End date</label><input type="date" id="date"></div>
+        <div><label for="time">End time</label><input type="time" id="time" value="00:00"></div>
+      </div>
+      <label for="tz">Time zone</label>
+      <select id="tz">
+        <option value="America/Los_Angeles">Pacific (PT)</option>
+        <option value="America/Denver">Mountain (MT)</option>
+        <option value="America/Chicago">Central (CT)</option>
+        <option value="America/New_York">Eastern (ET)</option>
+      </select>
+      <div class="hint" id="utcHint"></div>
+
+      <label for="font">Font</label>
+      <select id="font">
+        <option value="roboto">Roboto</option>
+        <option value="roboto-condensed">Roboto Condensed</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label for="fgHex">Font colour</label>
+          <div class="color"><input type="color" id="fgPick" value="#ffffff" aria-label="Pick font colour"><input type="text" id="fgHex" value="#ffffff" maxlength="7"></div>
+        </div>
+        <div>
+          <label for="bgHex">Background colour</label>
+          <div class="color"><input type="color" id="bgPick" value="#3d3d3e" aria-label="Pick background colour"><input type="text" id="bgHex" value="#3d3d3e" maxlength="7"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div><label for="width">Width in email (px)</label><input type="number" id="width" value="260" min="120" max="600" step="10"></div>
+        <div></div>
+      </div>
+
+      <label for="alt">Alt text <span class="hint">(shown when images are blocked)</span></label>
+      <input type="text" id="alt" maxlength="120">
+      <div class="hint">Filled in from the end date. Edit it if you like; it stops updating once you do.</div>
+
+      <div class="actions">
+        <button class="primary" id="save">Create timer</button>
+        <button id="newBtn" hidden>Start a new timer</button>
+        <span class="status" id="status"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Preview</h2>
+      <div class="preview" id="previewBox"><img id="preview" alt=""></div>
+      <div class="hint" id="previewHint">Preview only. Create the timer to get the code.</div>
+
+      <div id="output" hidden>
+        <p style="margin:14px 0 0">Timer ID <span class="badge" id="outId"></span></p>
+        <div class="snippet">
+          <div class="snippet-head"><span>Email (Bloomreach HTML block)</span><button data-copy="emailCode">Copy</button></div>
+          <textarea id="emailCode" readonly></textarea>
+        </div>
+        <div class="snippet">
+          <div class="snippet-head"><span>Web page</span><button data-copy="webCode">Copy</button></div>
+          <textarea id="webCode" readonly></textarea>
+        </div>
+        <div class="snippet">
+          <div class="snippet-head"><span>Image URL only</span><button data-copy="urlCode">Copy</button></div>
+          <textarea id="urlCode" readonly style="min-height:0;height:40px"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <div class="snippet-head"><h2 style="margin:0">Saved timers</h2><button id="refresh">Refresh</button></div>
+      <p class="hint" id="listHint">Enter the passphrase below to see saved timers.</p>
+      <table class="list" id="list" hidden>
+        <thead><tr><th>Name</th><th>Ends</th><th>ID</th><th>Updated</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card full">
+      <details id="settings">
+        <summary>Settings</summary>
+        <label for="key">Passphrase</label>
+        <input type="password" id="key" autocomplete="off">
+        <div class="hint">Needed to create or change timers. Remembered in this browser only.</div>
+        <label for="service">Timer service address</label>
+        <input type="text" id="service">
+        <div class="hint">Where the GIFs are drawn. Change this only when the service moves (e.g. to amain.com).</div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<script>
+const DEFAULT_SERVICE = 'https://countdown.cbhrcom.com';
+const TZ_ABBR = { 'America/Los_Angeles': 'PT', 'America/Denver': 'MT', 'America/Chicago': 'CT', 'America/New_York': 'ET' };
+const $ = id => document.getElementById(id);
+
+const store = {
+  get(k) { try { return localStorage.getItem('countdown.' + k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem('countdown.' + k, v); } catch (e) {} }
+};
+
+let editingId = null;     // ID of the saved timer being edited, if any
+let altEdited = false;    // stop auto-filling the alt text once it's been typed in
+
+const service = () => ($('service').value.trim() || DEFAULT_SERVICE).replace(/\/+$/, '');
+const key = () => $('key').value.trim();
+
+// ---- Time zones -------------------------------------------------------------
+
+// Minutes the zone is ahead of UTC at a given instant (e.g. -480 for PT in November)
+function zoneOffset(tz, ms) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }).formatToParts(ms).map(x => [x.type, x.value]));
+  return (Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - ms) / 60000;
+}
+
+// "2026-11-23" + "00:00" in a zone -> "2026-11-23T00:00:00-08:00" (handles daylight saving)
+function zonedIso(date, time, tz) {
+  const [y, mo, d] = date.split('-').map(Number), [h, mi] = time.split(':').map(Number);
+  const wall = Date.UTC(y, mo - 1, d, h, mi);
+  const off = zoneOffset(tz, wall - zoneOffset(tz, wall) * 60000);
+  const sign = off < 0 ? '-' : '+', a = Math.abs(off);
+  const pad = n => String(n).padStart(2, '0');
+  return `${date}T${pad(h)}:${pad(mi)}:00${sign}${pad(Math.floor(a / 60))}:${pad(a % 60)}`;
+}
+
+// The other way: an instant -> date and time inputs in a zone
+function wallParts(ms, tz) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+  }).formatToParts(ms).map(x => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+}
+
+// "Ends Mon, Nov 23 at 12 AM PT"
+function altText(ms, tz) {
+  const f = o => new Intl.DateTimeFormat('en-US', { timeZone: tz, ...o }).format(ms);
+  const mins = f({ minute: '2-digit' }).padStart(2, '0');
+  const time = f({ hour: 'numeric', hour12: true }).replace(/\s?([AP]M)/, (mins === '00' ? '' : ':' + mins) + ' $1');
+  return `Ends ${f({ weekday: 'short' })}, ${f({ month: 'short' })} ${f({ day: 'numeric' })} at ${time} ${TZ_ABBR[tz] || ''}`.trim();
+}
+
+// ---- Form ------------------------------------------------------------------
+
+function settings() {
+  const date = $('date').value, time = $('time').value || '00:00', tz = $('tz').value;
+  const end = date ? zonedIso(date, time, tz) : null;
+  return {
+    name: $('name').value.trim(), end, tz, font: $('font').value,
+    fg: $('fgHex').value.trim(), bg: $('bgHex').value.trim(),
+    width: Math.min(600, Math.max(120, parseInt($('width').value, 10) || 260)),
+    alt: $('alt').value.trim()
+  };
+}
+
+const validHex = v => /^#?[0-9a-f]{6}$/i.test(v);
+const normHex = v => '#' + v.replace('#', '').toLowerCase();
+
+let previewTimer;
+function refresh() {
+  const s = settings();
+  if (s.end) {
+    const ms = Date.parse(s.end);
+    $('utcHint').textContent = `= ${new Date(ms).toISOString().replace('.000Z', ' UTC').replace('T', ' ')}` + (ms < Date.now() ? ' (already passed)' : '');
+    if (!altEdited) $('alt').value = altText(ms, s.tz);
+  } else {
+    $('utcHint').textContent = '';
+  }
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    if (!s.end || !validHex(s.fg) || !validHex(s.bg)) return;
+    const q = new URLSearchParams({ end: s.end, font: s.font, fg: s.fg.replace('#', ''), bg: s.bg.replace('#', ''), w: s.width, t: Date.now() });
+    $('preview').src = `${service()}/preview.gif?${q}`;
+    $('preview').style.width = s.width + 'px';
+  }, 400);
+  if (editingId) renderCode(editingId, s);
+}
+
+function linkColour(pick, hex) {
+  $(pick).addEventListener('input', () => { $(hex).value = $(pick).value; refresh(); });
+  $(hex).addEventListener('input', () => { if (validHex($(hex).value)) $(pick).value = normHex($(hex).value); refresh(); });
+}
+linkColour('fgPick', 'fgHex');
+linkColour('bgPick', 'bgHex');
+['name', 'date', 'time', 'tz', 'font', 'width'].forEach(id => $(id).addEventListener('input', refresh));
+$('alt').addEventListener('input', () => { altEdited = $('alt').value.trim() !== ''; if (editingId) renderCode(editingId, settings()); });
+$('preview').addEventListener('error', () => { if ($('preview').src) setStatus("Preview couldn't load. Is the timer service running? (Settings)", 'err'); });
+$('preview').addEventListener('load', () => { if ($('status').textContent.startsWith('Preview')) setStatus(''); });
+
+// ---- Generated code ----------------------------------------------------------
+
+// Keep the output ASCII-only: the amain.com CMS turns other characters into mojibake
+const esc = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/[^\x20-\x7e]/g, c => `&#${c.codePointAt(0)};`);
+
+function renderCode(id, s) {
+  const src = `${service()}/countdown/${id}`;
+  const alt = esc(s.alt || '');
+  const fg = validHex(s.fg) ? normHex(s.fg) : '#ffffff';
+  $('outId').textContent = id;
+  $('urlCode').value = src;
+  $('emailCode').value =
+    `<img src="${src}" width="${s.width}" alt="${alt}" style="display:block;width:${s.width}px;max-width:100%;height:auto;margin:0 auto;border:0;color:${fg};font-size:16px" />`;
+  $('webCode').value =
+`<table align="center">
+  <tbody>
+    <tr>
+      <td><img src="${src}" width="${s.width}" alt="${alt}" style="display:block;max-width:100%;height:auto;" /></td>
+    </tr>
+  </tbody>
+</table>`;
+  $('output').hidden = false;
+  $('previewHint').hidden = true;
+}
+
+document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+  const ta = $(b.dataset.copy);
+  try { await navigator.clipboard.writeText(ta.value); } catch (e) { ta.select(); document.execCommand('copy'); }
+  b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy'), 1500);
+}));
+
+// ---- Saving ------------------------------------------------------------------
+
+function setStatus(msg, kind = '') { $('status').textContent = msg; $('status').className = 'status ' + kind; }
+
+async function api(method, path, body) {
+  const res = await fetch(service() + path, {
+    method, headers: { 'Authorization': 'Bearer ' + key(), ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+$('save').addEventListener('click', async () => {
+  const s = settings();
+  if (!s.end) return setStatus('Pick an end date.', 'err');
+  if (!validHex(s.fg) || !validHex(s.bg)) return setStatus('Colours must be 6-digit hex, e.g. #3d3d3e.', 'err');
+  if (!key()) { $('settings').open = true; $('key').focus(); return setStatus('Enter the passphrase in Settings first.', 'err'); }
+  s.fg = normHex(s.fg); s.bg = normHex(s.bg);
+  $('save').disabled = true;
+  setStatus('Saving...');
+  try {
+    const t = editingId ? await api('PUT', `/api/timers/${editingId}`, s) : await api('POST', '/api/timers', s);
+    if (!editingId) setStatus('Timer created. Copy the code below.', 'ok');
+    else setStatus('Saved. Emails already using this timer now show the new settings.', 'ok');
+    startEditing(t);
+    loadList();
+  } catch (e) {
+    setStatus(e.message === 'Failed to fetch' ? "Couldn't reach the timer service." : e.message, 'err');
+  } finally {
+    $('save').disabled = false;
+  }
+});
+
+function startEditing(t) {
+  editingId = t.id;
+  const tz = TZ_ABBR[t.tz] ? t.tz : 'America/Los_Angeles';
+  const w = wallParts(Date.parse(t.end), tz);
+  $('name').value = t.name || '';
+  $('date').value = w.date; $('time').value = w.time; $('tz').value = tz;
+  $('font').value = t.font;
+  $('fgHex').value = $('fgPick').value = t.fg;
+  $('bgHex').value = $('bgPick').value = t.bg;
+  $('width').value = t.width;
+  $('alt').value = t.alt || '';
+  altEdited = !!t.alt && t.alt !== altText(Date.parse(t.end), tz);
+  $('formTitle').textContent = `Editing ${t.name || t.id}`;
+  $('save').textContent = 'Save changes';
+  $('newBtn').hidden = false;
+  refresh();
+  renderCode(t.id, settings());
+}
+
+$('newBtn').addEventListener('click', () => {
+  editingId = null; altEdited = false;
+  $('name').value = '';
+  $('formTitle').textContent = 'New timer';
+  $('save').textContent = 'Create timer';
+  $('newBtn').hidden = true;
+  $('output').hidden = true;
+  $('previewHint').hidden = false;
+  setStatus('');
+  refresh();
+});
+
+async function loadList() {
+  if (!key()) return;
+  try {
+    const timers = await api('GET', '/api/timers');
+    const tbody = $('list').querySelector('tbody');
+    tbody.innerHTML = '';
+    for (const t of timers) {
+      const tr = document.createElement('tr');
+      tr.className = 'click';
+      const ends = new Intl.DateTimeFormat('en-US', { timeZone: t.tz, dateStyle: 'medium', timeStyle: 'short' }).format(Date.parse(t.end)) + ' ' + (TZ_ABBR[t.tz] || '');
+      [t.name || '(no name)', ends, t.id, new Date(t.updated).toLocaleDateString()].forEach(v => {
+        const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+      });
+      tr.addEventListener('click', () => { startEditing(t); setStatus('Loaded. Changes apply to every email using this timer.'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      tbody.appendChild(tr);
+    }
+    $('list').hidden = !timers.length;
+    $('listHint').textContent = timers.length ? 'Click a timer to edit it or copy its code.' : 'No saved timers yet.';
+  } catch (e) {
+    $('list').hidden = true;
+    $('listHint').textContent = e.message === 'Failed to fetch' ? "Couldn't reach the timer service." : e.message;
+  }
+}
+$('refresh').addEventListener('click', loadList);
+
+// ---- Start -------------------------------------------------------------------
+
+$('key').value = store.get('key') || '';
+$('service').value = store.get('service') || DEFAULT_SERVICE;
+$('key').addEventListener('change', () => { store.set('key', key()); loadList(); });
+$('service').addEventListener('change', () => { store.set('service', $('service').value.trim()); refresh(); loadList(); });
+
+// Default end: next Monday at midnight PT
+const next = new Date(); next.setDate(next.getDate() + ((8 - next.getDay()) % 7 || 7));
+$('date').value = wallParts(next.getTime(), 'America/Los_Angeles').date;
+refresh();
+loadList();
+</script>
+</body>
+</html>
